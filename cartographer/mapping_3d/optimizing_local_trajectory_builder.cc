@@ -390,7 +390,7 @@ OptimizingLocalTrajectoryBuilder::AddAccumulatedRangeData(
   }
 
   last_pose_estimate_ = {
-      time, optimized_pose,
+      time, optimized_pose,transform::Rigid3d::Identity(),
       sensor::TransformPointCloud(filtered_range_data.returns,
                                   optimized_pose.cast<float>())};
 

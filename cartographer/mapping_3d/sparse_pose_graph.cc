@@ -226,7 +226,7 @@ void SparsePoseGraph::ComputeConstraintsForScan(
     const Submap* finished_submap, const transform::Rigid3d& pose) {
   GrowSubmapTransformsAsNeeded(insertion_submaps);
   const mapping::SubmapId matching_id = GetSubmapId(matching_submap);
-  const transform::Rigid3d optimized_pose =
+  const transform::Rigid3d optimized_pose =//robot in world
       optimization_problem_.submap_data()
           .at(matching_id.trajectory_id)
           .at(matching_id.submap_index)
@@ -249,7 +249,7 @@ void SparsePoseGraph::ComputeConstraintsForScan(
     const mapping::SubmapId submap_id = GetSubmapId(submap);
     CHECK(!submap_states_.at(submap_id).finished);
     submap_states_.at(submap_id).node_ids.emplace(node_id);
-    const transform::Rigid3d constraint_transform =
+    const transform::Rigid3d constraint_transform =//submap_local*local_pose
         submap->local_pose.inverse() * pose;
     constraints_.push_back(
         Constraint{submap_id,

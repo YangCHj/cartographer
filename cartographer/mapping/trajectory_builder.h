@@ -44,12 +44,13 @@ class TrajectoryBuilder {
   // orientation and 'point_cloud' is the point cloud, in the local map frame.
   struct PoseEstimate {
     PoseEstimate() = default;
-    PoseEstimate(common::Time time, const transform::Rigid3d& pose,
+    PoseEstimate(common::Time time, const transform::Rigid3d& pose,const transform::Rigid3d& submap_pose,
                  const sensor::PointCloud& point_cloud)
-        : time(time), pose(pose), point_cloud(point_cloud) {}
+        : time(time), pose(pose),submap_pose(submap_pose) ,point_cloud(point_cloud) {}
 
     common::Time time = common::Time::min();
     transform::Rigid3d pose = transform::Rigid3d::Identity();
+    transform::Rigid3d submap_pose = transform::Rigid3d::Identity();
     sensor::PointCloud point_cloud;
   };
 

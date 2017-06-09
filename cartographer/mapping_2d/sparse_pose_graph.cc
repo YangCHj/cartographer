@@ -92,7 +92,7 @@ void SparsePoseGraph::AddScan(
     const sensor::RangeData& range_data_in_pose, const transform::Rigid2d& pose,
     const int trajectory_id, const mapping::Submap* const matching_submap,
     const std::vector<const mapping::Submap*>& insertion_submaps) {
-  const transform::Rigid3d optimized_pose(
+  const transform::Rigid3d optimized_pose(//当前scan所插入地图的submap in world* sensor in submap
       GetLocalToGlobalTransform(trajectory_id) * transform::Embed3D(pose));
 
   common::MutexLocker locker(&mutex_);
@@ -374,10 +374,10 @@ void SparsePoseGraph::RunOptimization() {
         new_submap_transforms.back() * old_submap_transforms.back().inverse();
     for (; node_index < num_nodes; ++node_index) {
       const mapping::NodeId node_id{trajectory_id, node_index};
-      trajectory_nodes_.at(node_id).pose =
+      trajectory_nodes_.at(node_id).pose =//这部分pose是用之前的submap的world pose和sensor 在submap中的pose算的，现在submap更新了
           extrapolation_transform * trajectory_nodes_.at(node_id).pose;
     }
-  }
+  }//optimized始终存着优化后的（不是当前所有的）
   optimized_submap_transforms_ = optimization_problem_.submap_data();
   connected_components_ = trajectory_connectivity_.ConnectedComponents();
   reverse_connected_components_.clear();
@@ -413,7 +413,7 @@ transform::Rigid3d SparsePoseGraph::GetLocalToGlobalTransform(
              .at(mapping::SubmapId{
                  trajectory_id,
                  static_cast<int>(extrapolated_submap_transforms.size()) - 1})
-             .submap->local_pose.inverse();
+             .submap->local_pose.inverse();//最新submap的local pose 外插
 }
 
 std::vector<std::vector<int>> SparsePoseGraph::GetConnectedTrajectories() {
@@ -434,7 +434,8 @@ std::vector<transform::Rigid3d> SparsePoseGraph::ExtrapolateSubmapTransforms(
     const int trajectory_id) const {
   if (trajectory_id >= submap_states_.num_trajectories()) {
     return {transform::Rigid3d::Identity()};
-  }
+  }//可能已经优化了5张submap的pose，但是现在已经有10张submap了，对于多出来的需要外插
+  //返回的每一个登记的submap的pose！
 
   // Submaps for which we have optimized poses.
   std::vector<transform::Rigid3d> result;
@@ -456,7 +457,7 @@ std::vector<transform::Rigid3d> SparsePoseGraph::ExtrapolateSubmapTransforms(
       const mapping::SubmapId previous_submap_id{
           trajectory_id, static_cast<int>(result.size()) - 1};
       result.push_back(
-          result.back() *
+          result.back() *//乘上相邻submap的local pose的差！
           submap_states_.at(previous_submap_id).submap->local_pose.inverse() *
           state.submap->local_pose);
     }

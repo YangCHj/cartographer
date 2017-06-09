@@ -183,7 +183,7 @@ KalmanLocalTrajectoryBuilder::AddAccumulatedRangeData(
       time, &scan_matcher_pose_estimate_, &unused_covariance_estimate);
 
   last_pose_estimate_ = {
-      time, scan_matcher_pose_estimate_,
+      time, scan_matcher_pose_estimate_,transform::Rigid3d::Identity(),
       sensor::TransformPointCloud(filtered_range_data.returns,
                                   pose_observation.cast<float>())};
 

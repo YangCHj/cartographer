@@ -20,6 +20,7 @@
 
 #include "cartographer/common/make_unique.h"
 #include "cartographer/sensor/range_data.h"
+#include "cartographer/mapping_2d/sparse_pose_graph/constraint_builder.h"
 
 namespace cartographer {
 namespace mapping_2d {
@@ -162,11 +163,12 @@ LocalTrajectoryBuilder::AddHorizontalRangeData(
   pose_estimate_ = transform::Rigid3d(
       transform::Rigid3d::Vector(translation.x(), translation.y(), 0.),
       pose_estimate_.rotation());
-
+//map--(submap/local(odom))
   const transform::Rigid3d tracking_2d_to_map =
       pose_estimate_ * tracking_to_tracking_2d.inverse();
+      
   last_pose_estimate_ = {
-      time, pose_estimate_,
+      time, pose_estimate_,transform::Embed3D(sparse_pose_graph::ComputeSubmapPose(*(submaps_.Get(submaps_.size()-1)))),
       sensor::TransformPointCloud(range_data_in_tracking_2d.returns,
                                   tracking_2d_to_map.cast<float>())};
 
